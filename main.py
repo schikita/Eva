@@ -4,11 +4,12 @@ from player import Player
 from spear import Spear
 from boss import Boss
 from boss_2 import BossTwo
+from boss_3 import BossThree
 from fireball import Fireball
 
 # Инициализация Pygame
 pygame.init()
-#liliyaliliya
+
 # Основные настройки экрана
 screen_width, screen_height = 1000, 800
 screen = pygame.display.set_mode((screen_width, screen_height))
@@ -33,6 +34,8 @@ boss_position = (screen_width - 300, screen_height - 260)  # Учитывая, �
 # Создание экземпляра босса
 boss = Boss(screen, boss_image_sheet, boss_position, all_sprites, fireballs)
 boss_two = BossTwo(screen, boss_image_sheet, boss_position, all_sprites, fireballs)
+boss_three = BossTwo(screen, boss_image_sheet, boss_position, all_sprites, fireballs)
+
 
 # Добавление босса в группу всех спрайтов
 all_sprites.add(boss)
