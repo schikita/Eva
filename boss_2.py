@@ -1,27 +1,29 @@
 import pygame
 from fireball import Fireball
+from boss import Boss
 
 screen_width = 1000
 screen_height = 800
 
 
-class Boss(pygame.sprite.Sprite):
+class BossTwo(pygame.sprite.Sprite):
     def __init__(self, screen, image_sheet, position, all_sprites_group, fireballs_group):
         super().__init__()
+        self.screen = screen
         self.image_sheet = image_sheet
-        self.screen = screen  # Сохраняем screen как атрибут класса
-        self.images = {
-            'normal': self.image_sheet.subsurface((0, 0, 240, 240)),
-            'hit': self.image_sheet.subsurface((240, 0, 240, 240))  # Исправлено на корректные размеры
-        }
-        self.image = self.images['normal']
-        self.rect = self.image.get_rect(topleft=position)
+        self.rect = self.image_sheet.get_rect(topleft=position)
         self.all_sprites = all_sprites_group
         self.fireballs = fireballs_group
-        self.health = 5  # Три жизни у босса
+        self.health = 5
+        self.attack_frequency = 3000
+        self.last_attack = pygame.time.get_ticks()
         self.hit_time = 0
-        self.attack_frequency = 3000  # Частота атаки в миллисекундах
-        self.last_attack = pygame.time.get_ticks()  # Время последней атаки
+        self.images = {
+            'normal': self.image_sheet.subsurface((0, 0, 184, 250)),
+            'hit': self.image_sheet.subsurface((184, 0, 184, 250))
+        }
+        self.image = self.images['normal']
+
 
     def update(self):
         # Проверка состояния "попадание"

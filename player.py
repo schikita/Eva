@@ -16,9 +16,9 @@ class Player(pygame.sprite.Sprite):
         self.state = "standing"
         self.anim_index = 0
         self.anim_timer = pygame.time.get_ticks()
-        self.velocity = 1
-        self.jump_speed = -10
-        self.gravity = 0.13
+        self.velocity = 5
+        self.jump_speed = -20
+        self.gravity = 0.3
         self.on_ground = True
         self.y_velocity = 0
         self.frame_rects = {  # Словарь теперь является атрибутом экземпляра
@@ -28,7 +28,7 @@ class Player(pygame.sprite.Sprite):
             "backward_standing": [(0, 150, 150, 150)],
             "jumping_forward": [(0, 300, 150, 150)],
             "jumping_backward": [(0, 450, 150, 150)],
-            "crouching_forward": [(0, 300, 150, 150)],
+            "crouching_forward": [(0, 340, 150, 110)],
             "crouching_backward": [(0, 300, 150, 150)],
             "attacking_forward": [(150, 300, 150, 150)],
             "attacking_backward": [(150, 450, 150, 150)],
@@ -44,7 +44,7 @@ class Player(pygame.sprite.Sprite):
             "backward_standing": (0, 150, 150, 150),
             "jumping_forward": (0, 300, 150, 150),
             "jumping_backward": (0, 450, 150, 150),
-            "crouching_forward": (0, 300, 150, 150),
+            "crouching_forward": (0, 340, 150, 110),
             "crouching_backward": (0, 300, 150, 150),
             "attacking_forward": (150, 300, 150, 150),
             "attacking_backward": (150, 450, 150, 150),
@@ -92,6 +92,7 @@ class Player(pygame.sprite.Sprite):
             self.y_velocity = self.jump_speed
             self.on_ground = False
             self.state = "jumping_forward" if self.last_direction == "right" else "jumping_backward"
+            self.anim_index = 0  # Сброс анимации
             self.update_animation()
 
     def apply_gravity(self):
@@ -129,8 +130,14 @@ class Player(pygame.sprite.Sprite):
 
     def take_damage(self):
         self.health -= 1
+        # Загрузка и установка спрайта игрока, соответствующего получению урона
+        damage_frame = self.image_sheet.subsurface((0, 600, 150, 150))  # Выбираем часть спрайта
+        self.image = damage_frame
         if self.health <= 0:
             self.die()
+        else:
+            # Возвращаем оригинальный спрайт через 0.5 секунды
+            pygame.time.set_timer(pygame.USEREVENT + 1, 500)  # Используем пользовательское событие для задержки
 
     def die(self):
         # Обработка смерти игрока

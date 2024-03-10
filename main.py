@@ -3,6 +3,7 @@ import sys
 from player import Player
 from spear import Spear
 from boss import Boss
+from boss_2 import BossTwo
 from fireball import Fireball
 
 # Инициализация Pygame
@@ -31,6 +32,7 @@ boss_position = (screen_width - 300, screen_height - 260)  # Учитывая, �
 
 # Создание экземпляра босса
 boss = Boss(screen, boss_image_sheet, boss_position, all_sprites, fireballs)
+boss_two = BossTwo(screen, boss_image_sheet, boss_position, all_sprites, fireballs)
 
 # Добавление босса в группу всех спрайтов
 all_sprites.add(boss)
@@ -49,6 +51,7 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
 # Шрифты
+pygame.font.init()  # Необходимо для работы с шрифтами в pygame
 font = pygame.font.Font(None, 36)
 
 # Переменные состояния игры
@@ -89,26 +92,38 @@ def toggle_music():
 
 
 def load_level(level):
-    global current_background, current_music, in_game, boss
+    global current_background, current_music, in_game, boss, boss_two
     current_background = pygame.image.load(backgrounds[level])
     current_music = music_files[level]
     pygame.mixer.music.load(current_music)
     pygame.mixer.music.play(-1)
     in_game = True
 
-    # Предполагаем, что boss объявлен как None или уже создан где-то в начале
+    # Сброс предыдущего состояния уровня
+    if boss:
+        boss.kill()
+        boss = None
+    if boss_two:  # Добавлено условие для второго босса
+        boss_two.kill()
+        boss_two = None
+
     if level == "Level 1":
-        # Создание и добавление босса только для первого уровня
-        if boss is None:  # Создаем босса, если он еще не создан
-            boss = Boss(boss_image_sheet, boss_position, all_sprites, fireballs)
-            all_sprites.add(boss)
-        else:
-            boss.rect.topleft = boss_position  # Перемещаем босса на его позицию, если он уже существует
+        boss = Boss(screen, boss_image_sheet, boss_position, all_sprites, fireballs)
+        all_sprites.add(boss)
+    elif level == "Level 2":
+        boss_two_image_sheet = pygame.image.load('Boss-2.png').convert_alpha()  # Убедитесь, что у вас есть 'Boss-2.png'
+        boss_two = BossTwo(screen, boss_two_image_sheet, boss_position, all_sprites, fireballs)
+        all_sprites.add(boss_two)
+
     else:
         # Удаляем босса из всех групп спрайтов, если это не первый уровень
         if boss:
             boss.kill()
             boss = None  # Сброс boss в None после удаления
+            boss_two = None
+
+
+# Аналогично для других уровней...
 
 
 def draw_level():
@@ -155,7 +170,7 @@ def draw_menu(options, selected):
         screen.blit(text, (menu_x - text.get_width() / 2, 150 + 50 * i))
 
 
-def main():
+def main(font):
     global current_screen, selected_option, pause_selected_option, in_game, music_muted, boss
 
     running = True
@@ -197,6 +212,15 @@ def main():
             draw_level()
             player.update(keys)  # Обновление игрока с передачей клавиш
 
+            player_health_text = font.render(f"Player Health: {player.health}", True, (255, 255, 255))
+            screen.blit(player_health_text, (10, 10))  # Размещение в левом верхнем углу
+
+            # Отрисовка индикации жизней босса, если босс существует и жив
+            if boss and boss.alive():
+                boss_health_text = font.render(f"Boss Health: {boss.health}", True, (255, 0, 0))
+                screen.blit(boss_health_text,
+                            (screen_width - boss_health_text.get_width() - 10, 10))  # Размещение в правом верхнем углу
+
             fireballs.update()
 
             # Обновляем спрайты, исключая игрока, если в группе all_sprites есть и другие спрайты
@@ -210,7 +234,22 @@ def main():
             spears.draw(screen)
             fireballs.draw(screen)
 
-
+            # Проверка столкновений между игроком и шариками
+            hits = pygame.sprite.spritecollide(player, fireballs, True)
+            for hit in hits:
+                player.take_damage()
+                if player.health <= 0:
+                    # Если жизни игрока закончились, показываем сообщение "You lose"
+                    screen.fill((0, 0, 0))  # Очищаем экран
+                    font = pygame.font.Font(None, 74)
+                    lose_text = font.render('You Lose', True, (255, 0, 0))
+                    text_rect = lose_text.get_rect(center=(screen_width / 2, screen_height / 2))
+                    screen.blit(lose_text, text_rect)
+                    pygame.display.flip()
+                    pygame.time.wait(2000)  # Даем время увидеть сообщение
+                    current_screen = "menu"
+                    in_game = False
+                    break  # Выход из цикла, чтобы не обрабатывать другие столкновения после смерти
 
             # Проверка столкновений
             if boss is not None and boss.alive():  # Добавлена проверка на существование объекта boss
@@ -225,7 +264,7 @@ def main():
 
             # Показываем сообщение "Level Complete", если уровень завершен
             if level_complete:
-                if pygame.time.get_ticks() - display_time < 5000:  # Отображаем сообщение в течение 5 секунд
+                if pygame.time.get_ticks() - display_time < 3000:  # Отображаем сообщение в течение 5 секунд
                     font = pygame.font.Font(None, 74)
                     text = font.render('Level Complete', True, WHITE)
                     text_rect = text.get_rect(center=(screen_width / 2, screen_height / 2))
@@ -243,4 +282,6 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    pygame.font.init()
+    font = pygame.font.Font(None, 36)
+    main(font)
