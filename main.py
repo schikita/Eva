@@ -8,7 +8,7 @@ from fireball import Fireball
 
 # Инициализация Pygame
 pygame.init()
-
+#liliyaliliya
 # Основные настройки экрана
 screen_width, screen_height = 1000, 800
 screen = pygame.display.set_mode((screen_width, screen_height))
