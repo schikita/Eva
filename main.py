@@ -112,6 +112,7 @@ def load_level(level):
         all_sprites.add(boss)
     elif level == "Level 2":
         boss_two_image_sheet = pygame.image.load('Boss-2.png').convert_alpha()  # Убедитесь, что у вас есть 'Boss-2.png'
+        boss_two_position = (screen_width - 300, screen_height - 260)
         boss_two = BossTwo(screen, boss_two_image_sheet, boss_position, all_sprites, fireballs)
         all_sprites.add(boss_two)
 
@@ -201,6 +202,10 @@ def main(font):
                     elif event.key == pygame.K_RETURN:
                         process_pause_selection(pause_options[pause_selected_option])
 
+                elif current_screen == "level 2" and boss_two and boss_two.alive():
+                    boss_two_health_text = font.render(f"Boss 2 Health: {boss_two.health}", True, WHITE)
+                    screen.blit(boss_two_health_text, (10, 50))
+
         keys = pygame.key.get_pressed()
         screen.fill(BLACK)
 
@@ -220,6 +225,19 @@ def main(font):
                 boss_health_text = font.render(f"Boss Health: {boss.health}", True, (255, 0, 0))
                 screen.blit(boss_health_text,
                             (screen_width - boss_health_text.get_width() - 10, 10))  # Размещение в правом верхнем углу
+
+            if current_screen == 'Level 2' and boss_two and boss_two.alive():
+                hits = pygame.sprite.spritecollide(boss_two, spears, True)
+                for hit in hits:
+                    boss_two.hit()
+                    if boss_two.health <= 0:
+                        level_complete = True
+                        level_2_completed = True
+                        display_time = pygame.time.get_ticks()
+                        boss_two.kill()
+
+                boss_two_health_text = font.render(f"Boss 2 Health: {boss_two.health}", True, (255, 255, 255))
+                screen.blit(boss_two_health_text, (10, 60))
 
             fireballs.update()
 
@@ -242,7 +260,7 @@ def main(font):
                     # Если жизни игрока закончились, показываем сообщение "You lose"
                     screen.fill((0, 0, 0))  # Очищаем экран
                     font = pygame.font.Font(None, 74)
-                    lose_text = font.render('You Lose', True, (255, 0, 0))
+                    lose_text = font.render('You Lost', True, (255, 0, 0))
                     text_rect = lose_text.get_rect(center=(screen_width / 2, screen_height / 2))
                     screen.blit(lose_text, text_rect)
                     pygame.display.flip()
