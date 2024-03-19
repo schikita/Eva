@@ -4,8 +4,6 @@ from ffpyplayer.player import MediaPlayer
 from ffpyplayer.tools import set_loglevel
 from pymediainfo import MediaInfo
 from errno import ENOENT
-
-
 class Video:
     def init(self, path):
         if not os.path.exists(path):
