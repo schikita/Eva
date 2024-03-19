@@ -1,7 +1,7 @@
 import pygame
 import os
-from ffpyplayer.player import MediaPlayer
-from ffpyplayer.tools import set_loglevel
+from pyvidplayer.player import MediaPlayer
+from pyvidplayer.tools import set_loglevel
 from pymediainfo import MediaInfo
 from errno import ENOENT
 class Video:
