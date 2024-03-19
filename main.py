@@ -36,7 +36,6 @@ boss = Boss(screen, boss_image_sheet, boss_position, all_sprites, fireballs)
 boss_two = BossTwo(screen, boss_image_sheet, boss_position, all_sprites, fireballs)
 boss_three = BossTwo(screen, boss_image_sheet, boss_position, all_sprites, fireballs)
 
-
 # Добавление босса в группу всех спрайтов
 all_sprites.add(boss)
 
@@ -95,7 +94,7 @@ def toggle_music():
 
 
 def load_level(level):
-    global current_background, current_music, in_game, boss, boss_two
+    global current_background, current_music, in_game, boss, boss_two, boss_three
     current_background = pygame.image.load(backgrounds[level])
     current_music = music_files[level]
     pygame.mixer.music.load(current_music)
@@ -109,6 +108,9 @@ def load_level(level):
     if boss_two:  # Добавлено условие для второго босса
         boss_two.kill()
         boss_two = None
+    if boss_three:
+        boss_three.kill()
+        boss_three = None
 
     if level == "Level 1":
         boss = Boss(screen, boss_image_sheet, boss_position, all_sprites, fireballs)
@@ -116,8 +118,14 @@ def load_level(level):
     elif level == "Level 2":
         boss_two_image_sheet = pygame.image.load('Boss-2.png').convert_alpha()  # Убедитесь, что у вас есть 'Boss-2.png'
         boss_two_position = (screen_width - 300, screen_height - 260)
-        boss_two = BossTwo(screen, boss_two_image_sheet, boss_position, all_sprites, fireballs)
+        boss_two = BossTwo(screen, boss_two_image_sheet, boss_two_position, all_sprites, fireballs)
         all_sprites.add(boss_two)
+    elif level == "Level 3":
+        boss_three_image_sheet = pygame.image.load(
+            'Boss-3.png').convert_alpha()  # Убедитесь, что у вас есть 'Boss-2.png'
+        boss_three_position = (screen_width - 300, screen_height - 260)
+        boss_three = BossThree(screen, boss_three_image_sheet, boss_three_position, all_sprites, fireballs)
+        all_sprites.add(boss_three)
 
     else:
         # Удаляем босса из всех групп спрайтов, если это не первый уровень
@@ -144,6 +152,8 @@ def process_menu_selection(option):
         toggle_music()
     elif option == "Exit":
         running = False
+        pygame.quit()
+        sys.exit()
 
 
 def process_pause_selection(option):
@@ -208,6 +218,9 @@ def main(font):
                 elif current_screen == "level 2" and boss_two and boss_two.alive():
                     boss_two_health_text = font.render(f"Boss 2 Health: {boss_two.health}", True, WHITE)
                     screen.blit(boss_two_health_text, (10, 50))
+                elif current_screen == "level 3" and boss_three and boss_three.alive():
+                    boss_three_health_text = font.render(f"Boss 3 Health: {boss_three.health}", True, WHITE)
+                    screen.blit(boss_three_health_text, (10, 50))
 
         keys = pygame.key.get_pressed()
         screen.fill(BLACK)
@@ -295,6 +308,7 @@ def main(font):
                     current_screen = "menu"
                     in_game = False
                     level_complete = False  # Сброс флага завершения уровня для возможного повторного прохождения
+
 
         pygame.display.flip()
 
