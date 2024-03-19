@@ -27,6 +27,30 @@ player = Player(player_image_sheet, (100, 100), all_sprites, spears, screen_heig
 # Загрузка видео для интро
 intro_video_path = 'video-1.mp4'  # Укажите здесь правильный путь к вашему видеофайлу
 intro_video = Video(intro_video_path)
+intro_video.set_size((1000, 800))
+
+
+def intro():
+    pygame.mixer.music.stop()  # Останавливаем музыку перед началом интро
+    intro_video.restart()  # Перезапуск видео с начала
+    intro_video.resume()  # Возобновляем воспроизведение видео, на случай если оно было остановлено
+
+    while intro_video.active:  # Пока видео активно
+        intro_video.draw(screen, (0, 0))  # Отрисовка кадра видео
+        pygame.display.update()  # Обновление экрана для отображения кадра
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    intro_video.close()  # Закрываем видео
+                    pygame.mixer.music.play(-1)  # Воспроизведение музыки снова
+                    return  # Выход из функции, возвращение в главное меню
+        pygame.time.wait(int(intro_video.frame_delay * 1000))  # Задержка для синхронизации с частотой кадров
+
+    pygame.mixer.music.play(-1)  # Воспроизведение музыки снова после окончания видео
+
 
 
 all_sprites.add(player)
@@ -118,7 +142,6 @@ def load_level(level):
         boss_three.kill()
         boss_three = None
 
-
     if level == "Level 1":
         boss = Boss(screen, boss_image_sheet, boss_position, all_sprites, fireballs)
         all_sprites.add(boss)
@@ -157,9 +180,8 @@ def process_menu_selection(option):
         current_screen = option
         in_game = True
     elif option == "Intro":
-        current_screen = "intro"
-        intro_video.restart()  # Перезапуск видео с начала
-        in_game = False
+
+        intro()
     elif option == "Mute":
         toggle_music()
     elif option == "Exit":
@@ -178,7 +200,7 @@ def process_pause_selection(option):
     elif option == "Exit":
         current_screen = "menu"
         in_game = False
-        selected_option = 0
+        # selected_option = 0
         pygame.mixer.music.stop()
         pygame.mixer.music.load('04-Cruel-Angel_s-Thesis.ogg')
         pygame.mixer.music.play(-1)
@@ -242,11 +264,7 @@ def main(font):
         elif current_screen == "pause":
             draw_menu(pause_options, pause_selected_option)
         elif current_screen == "intro":
-            if intro_video._update():
-                screen.fill((0, 0, 0))  # Очищаем экран перед отрисовкой нового кадра
-                screen.blit(intro_video.frame_surf, (0, 0))  # Отрисовка кадра видео
-            else:
-                current_screen = "menu"  # Возврат в меню, если видео закончилось
+            intro()
         elif in_game:
             draw_level()
             player.update(keys)  # Обновление игрока с передачей клавиш
@@ -326,7 +344,6 @@ def main(font):
                     current_screen = "menu"
                     in_game = False
                     level_complete = False  # Сброс флага завершения уровня для возможного повторного прохождения
-
 
         pygame.display.flip()
 
