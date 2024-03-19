@@ -1,5 +1,6 @@
 import pygame
 import sys
+from video import Video
 from player import Player
 from spear import Spear
 from boss import Boss
@@ -22,6 +23,11 @@ spears = pygame.sprite.Group()
 # Загрузка изображения листа спрайтов и создание игрока
 player_image_sheet = pygame.image.load('Sprite-player-1.png')
 player = Player(player_image_sheet, (100, 100), all_sprites, spears, screen_height)
+
+# Загрузка видео для интро
+intro_video_path = 'video-1.mp4'  # Укажите здесь правильный путь к вашему видеофайлу
+intro_video = Video(intro_video_path)
+
 
 all_sprites.add(player)
 
@@ -112,6 +118,7 @@ def load_level(level):
         boss_three.kill()
         boss_three = None
 
+
     if level == "Level 1":
         boss = Boss(screen, boss_image_sheet, boss_position, all_sprites, fireballs)
         all_sprites.add(boss)
@@ -125,6 +132,7 @@ def load_level(level):
             'Boss-3.png').convert_alpha()  # Убедитесь, что у вас есть 'Boss-2.png'
         boss_three_position = (screen_width - 300, screen_height - 260)
         boss_three = BossThree(screen, boss_three_image_sheet, boss_three_position, all_sprites, fireballs)
+
         all_sprites.add(boss_three)
 
     else:
@@ -148,6 +156,10 @@ def process_menu_selection(option):
         load_level(option)
         current_screen = option
         in_game = True
+    elif option == "Intro":
+        current_screen = "intro"
+        intro_video.restart()  # Перезапуск видео с начала
+        in_game = False
     elif option == "Mute":
         toggle_music()
     elif option == "Exit":
@@ -229,6 +241,12 @@ def main(font):
             draw_menu(menu_options, selected_option)
         elif current_screen == "pause":
             draw_menu(pause_options, pause_selected_option)
+        elif current_screen == "intro":
+            if intro_video._update():
+                screen.fill((0, 0, 0))  # Очищаем экран перед отрисовкой нового кадра
+                screen.blit(intro_video.frame_surf, (0, 0))  # Отрисовка кадра видео
+            else:
+                current_screen = "menu"  # Возврат в меню, если видео закончилось
         elif in_game:
             draw_level()
             player.update(keys)  # Обновление игрока с передачей клавиш
