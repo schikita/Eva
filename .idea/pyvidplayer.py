@@ -5,7 +5,7 @@ from pyvidplayer.tools import set_loglevel
 from pymediainfo import MediaInfo
 from errno import ENOENT
 class Video:
-    def init(self, path):
+    def __init__(self, path):
         if not os.path.exists(path):
             raise FileNotFoundError(ENOENT, os.strerror(ENOENT), path)
         set_loglevel("quiet")

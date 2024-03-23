@@ -8,20 +8,21 @@ screen_height = 800
 class BossThree(pygame.sprite.Sprite):
     def __init__(self, screen, image_sheet, position, all_sprites_group, fireballs_group):
         super().__init__()
+        self.screen = screen
         self.image_sheet = image_sheet
-        self.screen = screen  # Сохраняем screen как атрибут класса
         self.images = {
-            'normal': self.image_sheet.subsurface((0, 0, 240, 265)),
-            'hit': self.image_sheet.subsurface((260, 0, 230, 230))
+            'normal': self.image_sheet.subsurface((0, 0, 250, 250)),
+            'hit': self.image_sheet.subsurface((180, 0, 140, 250))
         }
         self.image = self.images['normal']
         self.rect = self.image.get_rect(topleft=position)
         self.all_sprites = all_sprites_group
         self.fireballs = fireballs_group
         self.health = 5  # Три жизни у босса
-        self.hit_time = 0
         self.attack_frequency = 3000  # Частота атаки в миллисекундах
         self.last_attack = pygame.time.get_ticks()  # Время последней атаки
+        self.hit_time = 0
+
 
     def update(self):
         # Проверка состояния "попадание"

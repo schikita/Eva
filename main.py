@@ -1,6 +1,9 @@
 import pygame
 import sys
-from pyvidplayer import Video
+
+from pygame import Surface, SurfaceType
+
+# from pyvidplayer import Video
 from player import Player
 from spear import Spear
 from boss import Boss
@@ -13,7 +16,7 @@ pygame.init()
 
 # Основные настройки экрана
 screen_width, screen_height = 1000, 800
-screen = pygame.display.set_mode((screen_width, screen_height))
+screen: Surface | SurfaceType = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Evangelion")
 
 # Инициализация групп спрайтов
@@ -25,7 +28,7 @@ player_image_sheet = pygame.image.load('Sprite-player-1.png')
 player = Player(player_image_sheet, (100, 100), all_sprites, spears, screen_height)
 
 # Загрузка видео
-Intro = Video("Vid.mp4")
+# Intro = Video("Vid.mp4")
 
 all_sprites.add(player)
 
@@ -38,8 +41,7 @@ boss_position = (screen_width - 300, screen_height - 260)  # Учитывая, �
 # Создание экземпляра босса
 boss = Boss(screen, boss_image_sheet, boss_position, all_sprites, fireballs)
 boss_two = BossTwo(screen, boss_image_sheet, boss_position, all_sprites, fireballs)
-boss_three = BossTwo(screen, boss_image_sheet, boss_position, all_sprites, fireballs)
-
+boss_three = BossThree(screen, boss_image_sheet, boss_position, all_sprites, fireballs)
 
 # Добавление босса в группу всех спрайтов
 all_sprites.add(boss)
@@ -99,7 +101,7 @@ def toggle_music():
 
 
 def load_level(level):
-    global current_background, current_music, in_game, boss, boss_two,boss_three
+    global current_background, current_music, in_game, boss, boss_two, boss_three
     current_background = pygame.image.load(backgrounds[level])
     current_music = music_files[level]
     pygame.mixer.music.load(current_music)
@@ -113,11 +115,9 @@ def load_level(level):
     if boss_two:  # Добавлено условие для второго босса
         boss_two.kill()
         boss_two = None
-    if  boss_three:
+    if boss_three:
         boss_three.kill()
         boss_three = None
-
-
 
     if level == "Level 1":
         boss = Boss(screen, boss_image_sheet, boss_position, all_sprites, fireballs)
@@ -125,10 +125,10 @@ def load_level(level):
     elif level == "Level 2":
         boss_two_image_sheet = pygame.image.load('Boss-2.png').convert_alpha()  # Убедитесь, что у вас есть 'Boss-2.png'
         boss_two_position = (screen_width - 300, screen_height - 260)
-        boss_two = BossThree(screen, boss_two_image_sheet, boss_position, all_sprites, fireballs)
+        boss_two = BossTwo(screen, boss_two_image_sheet, boss_position, all_sprites, fireballs)
         all_sprites.add(boss_two)
     elif level == "Level 3":
-        boss_three_image_sheet = pygame.image.load('Boss-2.png').convert_alpha()  # Убедитесь, что у вас есть 'Boss-2.png'
+        boss_three_image_sheet: Surface = pygame.image.load('Boss-3.png').convert_alpha()  # Убедитесь, что у вас есть 'Boss-3.png'
         boss_three_position = (screen_width - 300, screen_height - 260)
         boss_three = BossThree(screen, boss_three_image_sheet, boss_position, all_sprites, fireballs)
         all_sprites.add(boss_three)
@@ -139,6 +139,7 @@ def load_level(level):
             boss.kill()
             boss = None  # Сброс boss в None после удаления
             boss_two = None
+            boss_three = None
 
 
 # Аналогично для других уровней...
@@ -300,7 +301,7 @@ def main(font):
                         level_complete = True
                         display_time = pygame.time.get_ticks()
                         boss.kill()  # Удаляем босса из всех групп спрайтов
-                        level_1_completed = True  # Указываем, что первый уровень завершен
+                        level_1_completed = True # Указываем, что первый уровень завершен
 
             # Показываем сообщение "Level Complete", если уровень завершен
             if level_complete:
