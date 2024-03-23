@@ -16,6 +16,7 @@ class Video:
         self.name = os.path.splitext(os.path.basename(path))[0]
 
         self._video = MediaPlayer(path)
+        self.set_volume(0)  # Устанавливаем громкость на 0
         self._frame_num = 0
 
         info = MediaInfo.parse(path).video_tracks[0]
@@ -28,18 +29,20 @@ class Video:
         self.current_size = self.original_size
 
         self.active = True
-        self.frame_surf = pygame.Surface((0, 0))
+        self.frame_surf = pygame.Surface((1, 1))
+
 
         self.alt_resize = pygame.transform.smoothscale
 
     def close(self):
         self._video.close_player()
+        self.active = False  # Деактивируем видео после закрытия
 
     def restart(self):
-        self._video.seek(0, relative=False)
+        self._video = MediaPlayer(self.path)  # Пересоздаем объект MediaPlayer
         self._frame_num = 0
-        self.frame_surf = None
-        self.active = True
+        self.frame_surf = None  # Сбрасываем surface кадра
+        self.active = True  # Снова активируем видео
 
     def set_size(self, size: tuple):
         self._video.set_size(*size)
@@ -100,5 +103,8 @@ class Video:
 
     def draw(self, surf: pygame.Surface, pos: tuple, force_draw: bool = True) -> bool:
         if self.active and (self._update() or force_draw):
-            surf.blit(self.frame_surf, pos)
-            return True
+            if self.frame_surf is not None:  # Добавляем эту проверку
+                surf.blit(self.frame_surf, pos)
+                return True
+        return False
+

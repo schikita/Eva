@@ -32,6 +32,7 @@ intro_video.set_size((1000, 800))
 
 def intro():
     pygame.mixer.music.stop()  # Останавливаем музыку перед началом интро
+    intro_video.set_volume(1)
     intro_video.restart()  # Перезапуск видео с начала
     intro_video.resume()  # Возобновляем воспроизведение видео, на случай если оно было остановлено
 
@@ -45,12 +46,10 @@ def intro():
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     intro_video.close()  # Закрываем видео
-                    pygame.mixer.music.play(-1)  # Воспроизведение музыки снова
                     return  # Выход из функции, возвращение в главное меню
         pygame.time.wait(int(intro_video.frame_delay * 1000))  # Задержка для синхронизации с частотой кадров
 
-    pygame.mixer.music.play(-1)  # Воспроизведение музыки снова после окончания видео
-
+    # pygame.mixer.music.play(-1)  # Воспроизведение музыки снова после окончания видео
 
 
 all_sprites.add(player)
@@ -180,7 +179,8 @@ def process_menu_selection(option):
         current_screen = option
         in_game = True
     elif option == "Intro":
-
+        intro_video.restart()
+        intro_video.set_volume(1)
         intro()
     elif option == "Mute":
         toggle_music()
@@ -200,7 +200,6 @@ def process_pause_selection(option):
     elif option == "Exit":
         current_screen = "menu"
         in_game = False
-        # selected_option = 0
         pygame.mixer.music.stop()
         pygame.mixer.music.load('04-Cruel-Angel_s-Thesis.ogg')
         pygame.mixer.music.play(-1)
@@ -278,18 +277,38 @@ def main(font):
                 screen.blit(boss_health_text,
                             (screen_width - boss_health_text.get_width() - 10, 10))  # Размещение в правом верхнем углу
 
+            if boss_three and boss_three.alive():
+                hits = pygame.sprite.spritecollide(boss_three, spears,
+                                                   True)  # True означает, что копья будут уничтожены при столкновении
+                for hit in hits:
+                    boss_three.hit()  # Вызываем метод hit() для третьего босса
+                    # Отрисовка индикатора здоровья босса, если он жив
+                    boss_three_health_text = font.render(f"Boss 3 Health: {boss_three.health}", True, WHITE)
+                    screen.blit(boss_three_health_text, (10, 70))  # Позиция индикатора здоровья босса
+
             if current_screen == 'Level 2' and boss_two and boss_two.alive():
                 hits = pygame.sprite.spritecollide(boss_two, spears, True)
                 for hit in hits:
                     boss_two.hit()
                     if boss_two.health <= 0:
                         level_complete = True
-                        level_2_completed = True
                         display_time = pygame.time.get_ticks()
                         boss_two.kill()
 
                 boss_two_health_text = font.render(f"Boss 2 Health: {boss_two.health}", True, (255, 255, 255))
                 screen.blit(boss_two_health_text, (10, 60))
+
+            if current_screen == 'Level 3' and boss_three and boss_three.alive():
+                hits = pygame.sprite.spritecollide(boss_three, spears, True)
+                for hit in hits:
+                    boss_three.hit()
+                    if boss_two.health <= 0:
+                        level_complete = True
+                        display_time = pygame.time.get_ticks()
+                        boss_three.kill()
+
+                boss_three_health_text = font.render(f"Boss 3 Health: {boss_three.health}", True, (255, 255, 255))
+                screen.blit(boss_three_health_text, (10, 60))
 
             fireballs.update()
 

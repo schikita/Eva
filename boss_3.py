@@ -12,7 +12,7 @@ class BossThree(pygame.sprite.Sprite):
         self.screen = screen  # Сохраняем screen как атрибут класса
         self.images = {
             'normal': self.image_sheet.subsurface((0, 0, 240, 265)),
-            'hit': self.image_sheet.subsurface((260, 0, 230, 230))
+            'hit': self.image_sheet.subsurface((260, 0, 230, 260))
         }
         self.image = self.images['normal']
         self.rect = self.image.get_rect(topleft=position)
