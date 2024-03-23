@@ -12,7 +12,7 @@ class BossThree(pygame.sprite.Sprite):
         self.image_sheet = image_sheet
         self.images = {
             'normal': self.image_sheet.subsurface((0, 0, 250, 250)),
-            'hit': self.image_sheet.subsurface((180, 0, 140, 250))
+            'hit': self.image_sheet.subsurface((145, 0, 184, 250))
         }
         self.image = self.images['normal']
         self.rect = self.image.get_rect(topleft=position)
